@@ -2,8 +2,10 @@ import pygame
 import math
 from settings import *
 from cube import Cube
+from pyramid import Pyramid
 
 pygame.init()
+font = pygame.font.SysFont(None, 24)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Spinning Cube")
 clock = pygame.time.Clock()
@@ -17,10 +19,9 @@ mouseDown = False
 lastMousePos = (0, 0)
 DISTANCE = DEFAULT_DISTANCE
 
-# --- Helper functions ---
+
 
 def get_face_normal(p1, p2, p3):
-    """Compute normal vector of a face (3 points)"""
     ux, uy, uz = p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]
     vx, vy, vz = p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]
     return (uy * vz - uz * vy,
@@ -36,11 +37,9 @@ def normalize(v):
     return (v[0]/length, v[1]/length, v[2]/length)
 
 
-# --- Main loop ---
 while running:
     clock.tick(FPS)
 
-    # --- Event handling ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -70,25 +69,20 @@ while running:
             total_rotx = 0
             total_roty = 0
 
-    # --- Clear screen ---
     screen.fill(BACKGROUND)
 
-    # --- Rotate cube ---
     cube.reset_points()
     cube.rotate_x(total_rotx)
     cube.rotate_y(total_roty)
 
-    # --- Project points ---
     points2d = cube.project(WIDTH, HEIGHT, FOV, DISTANCE)
 
-    # --- Lighting ---
     LIGHT_DIR = normalize((0, 0, 1))
     BASE_COLOR = (60, 120, 200)
 
-    # --- Draw faces ---
     faces_to_draw = []
 
-    for face in cube.faces:
+    for index , face in enumerate(cube.faces):
         p1, p2, p3 = [cube.points[i] for i in face[:3]]
         normal = normalize(get_face_normal(p1, p2, p3))
 
@@ -101,23 +95,25 @@ while running:
         )
 
         avg_z = sum(cube.points[i][2] for i in face) / 4
-        faces_to_draw.append((avg_z, face, color))
+        faces_to_draw.append((avg_z, index, face, color))
 
-    # Sort faces back-to-front
     faces_to_draw.sort(reverse=True)
 
     # Draw polygons
-    for _, face, color in faces_to_draw:
+    for _, index, face, color in faces_to_draw:
         polygon = [points2d[i] for i in face]
         pygame.draw.polygon(screen, color, polygon)
+        cx = sum(points2d[i][0] for i in face) / len(face)
+        cy = sum(points2d[i][1] for i in face) / len(face)
+        text = font.render(str(index + 1), True, (255, 255, 255))
+        text_rect = text.get_rect(center=(cx, cy))
+        screen.blit(text, text_rect)
 
-    # --- Draw edges ---
     for edge in cube.edges:
         p1 = points2d[edge[0]]
         p2 = points2d[edge[1]]
         pygame.draw.line(screen, LINE_COLOR, p1, p2, 2)
 
-    # --- Draw vertices ---
     if SHOW_VERTICIES:
         for p in points2d:
             pygame.draw.circle(screen, (255, 0, 0), (int(p[0]), int(p[1])), 4)
