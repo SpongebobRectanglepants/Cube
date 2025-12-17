@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Spinning Cube")
 clock = pygame.time.Clock()
 
-cube = Cube(CUBE_SIZE)
+cube = Pyramid(CUBE_SIZE)
 
 running = True
 total_rotx = 0
