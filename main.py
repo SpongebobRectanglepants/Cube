@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Spinning Cube")
 clock = pygame.time.Clock()
 
-cube = Pyramid(CUBE_SIZE)
+cube = Cube(CUBE_SIZE)
 
 running = True
 total_rotx = 0
@@ -18,8 +18,8 @@ total_roty = 0
 mouseDown = False
 lastMousePos = (0, 0)
 DISTANCE = DEFAULT_DISTANCE
-
-
+shape = "cube"
+typeSurface = font.render(f"Type : {shape}", True, (255,255,255))
 
 def get_face_normal(p1, p2, p3):
     ux, uy, uz = p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]
@@ -68,7 +68,19 @@ while running:
             DISTANCE = DEFAULT_DISTANCE
             cube.reset_points()
 
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            if isinstance(cube, Pyramid):
+                cube = Cube(CUBE_SIZE)
+                shape = "cube"
+                typeSurface = font.render(f"Type : {shape}", True, (255,255,255))
+            else:
+                cube = Pyramid(CUBE_SIZE)
+                shape = "pyramid"
+                typeSurface = font.render(f"Type : {shape}", True, (255,255,255))
+
     screen.fill(BACKGROUND)
+
+    screen.blit(typeSurface, (605, 20, 50, 50))
 
     points2d = cube.project(WIDTH, HEIGHT, FOV, DISTANCE)
 
