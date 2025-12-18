@@ -55,8 +55,9 @@ while running:
             mousex, mousey = pygame.mouse.get_pos()
             dx = mousex - lastMousePos[0]
             dy = mousey - lastMousePos[1]
-            total_roty += dx * 0.005
-            total_rotx += dy * 0.005
+            cube.rotate_y(-dx * 0.005) # - Makes it spin correct ways
+            cube.rotate_x(dy * 0.005)
+
             lastMousePos = (mousex, mousey)
 
         elif event.type == pygame.MOUSEWHEEL:
@@ -66,14 +67,8 @@ while running:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
             DISTANCE = DEFAULT_DISTANCE
             cube.reset_points()
-            total_rotx = 0
-            total_roty = 0
 
     screen.fill(BACKGROUND)
-
-    cube.reset_points()
-    cube.rotate_x(total_rotx)
-    cube.rotate_y(total_roty)
 
     points2d = cube.project(WIDTH, HEIGHT, FOV, DISTANCE)
 
